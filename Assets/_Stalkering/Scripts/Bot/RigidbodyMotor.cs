@@ -4,6 +4,7 @@ using UnityEngine;
 public class RigidbodyMotor : MonoBehaviour, IMovementMotor
 {
     private const float ClimbSkin = 0.02f;
+    private const float UnitSquaredMagnitude = 1f;
 
     private Rigidbody _rigidbody;
     private IStepClimber _stepClimber;
@@ -16,18 +17,15 @@ public class RigidbodyMotor : MonoBehaviour, IMovementMotor
         _rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
     }
 
-    public void Construct(IStepClimber stepClimber)
-    {
+    public void Construct(IStepClimber stepClimber) =>
         _stepClimber = stepClimber;
-    }
 
     public void Move(Vector3 worldDirection, float speed)
     {
         Vector3 planar = new Vector3(worldDirection.x, 0f, worldDirection.z);
-        if (planar.sqrMagnitude > 1f)
-        {
+
+        if (planar.sqrMagnitude > UnitSquaredMagnitude)
             planar.Normalize();
-        }
 
         _desiredPlanarVelocity = planar * speed;
     }
@@ -35,9 +33,7 @@ public class RigidbodyMotor : MonoBehaviour, IMovementMotor
     private void FixedUpdate()
     {
         if (_rigidbody == null)
-        {
             return;
-        }
 
         Vector3 velocity = _rigidbody.linearVelocity;
         velocity.x = _desiredPlanarVelocity.x;

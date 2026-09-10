@@ -2,9 +2,7 @@ using UnityEngine;
 
 public class CharacterLocomotion : MonoBehaviour
 {
-    [SerializeField]
-    private float _moveSpeed = 5f;
-
+    [SerializeField] private float _moveSpeed = 5f;
     private IMoveInput _moveInput;
     private IMovementMotor _motor;
 
@@ -17,9 +15,7 @@ public class CharacterLocomotion : MonoBehaviour
     private void Update()
     {
         if (_moveInput == null || _motor == null)
-        {
             return;
-        }
 
         Vector2 input = _moveInput.MoveDirection;
         Vector3 worldDirection = new Vector3(input.x, 0f, input.y);
