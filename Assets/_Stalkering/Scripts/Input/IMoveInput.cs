@@ -2,5 +2,5 @@ using UnityEngine;
 
 public interface IMoveInput
 {
-    Vector2 MoveDirection { get; }
+    Vector2 GetMoveDirection();
 }

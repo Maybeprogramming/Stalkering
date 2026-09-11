@@ -2252,7 +2252,8 @@ GameObject:
   - component: {fileID: 512340006}
   - component: {fileID: 512340007}
   - component: {fileID: 512340008}
-  m_Layer: 0
+  - component: {fileID: 512340013}
+  m_Layer: 6
   m_Name: Bot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2364,13 +2365,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f3c8b0d2e459a7f4b1d9c6e3a5f0c78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StepClimber
-  _maxStepHeight: 0.35
+  _maxStepHeight: 0.4
   _stepCheckDistance: 0.4
-  _probeRadius: 0.2
+  _probeRadius: 0.25
   _skinWidth: 0.08
-  _collisionMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
 --- !u!114 &512340008
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2395,7 +2393,7 @@ GameObject:
   - component: {fileID: 512340010}
   - component: {fileID: 512340011}
   - component: {fileID: 512340012}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2474,6 +2472,23 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &512340013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 512340001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b05ea68b618f2d4ab242e52e1da92e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GroundChecker
+  _detectorOffset: {x: 0, y: 0.1, z: 0}
+  _detectionRadius: 0.2
+  _groundMask:
+    serializedVersion: 2
+    m_Bits: 1
 --- !u!1 &610000001
 GameObject:
   m_ObjectHideFlags: 0
@@ -2526,6 +2541,7 @@ MonoBehaviour:
   _botPursuit: {fileID: 512340005}
   _botMotor: {fileID: 512340006}
   _botStepClimber: {fileID: 512340007}
+  _botGroundChecker: {fileID: 512340013}
 --- !u!1 &645861615
 GameObject:
   m_ObjectHideFlags: 0
@@ -2902,7 +2918,7 @@ GameObject:
   - component: {fileID: 1309251736}
   - component: {fileID: 1309251735}
   - component: {fileID: 1309251734}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3234,7 +3250,8 @@ GameObject:
   - component: {fileID: 1443621912}
   - component: {fileID: 1443621911}
   - component: {fileID: 1443621913}
-  m_Layer: 0
+  - component: {fileID: 1443621914}
+  m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3332,6 +3349,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8f1a2b3c4d5061728394a5b6c7d8e9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player
+--- !u!114 &1443621914
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1443621907}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b05ea68b618f2d4ab242e52e1da92e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GroundChecker
+  _detectorOffset: {x: 0, y: 0.1, z: 0}
+  _detectionRadius: 0.2
+  _groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967231
 --- !u!1 &1655803415
 GameObject:
   m_ObjectHideFlags: 0

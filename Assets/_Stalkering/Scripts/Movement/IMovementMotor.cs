@@ -2,5 +2,5 @@ using UnityEngine;
 
 public interface IMovementMotor
 {
-    void Move(Vector3 worldDirection, float speed);
+    void SetDesiredVelocity(Vector3 planarVelocity);
 }

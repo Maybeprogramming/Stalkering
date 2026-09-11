@@ -1,10 +1,9 @@
 using UnityEngine;
 
+[RequireComponent(typeof(GroundChecker))]
 public class StepClimber : MonoBehaviour, IStepClimber
 {
     private const int HitBufferSize = 16;
-    private const int AllLayersMask = ~0;
-    private const int NoLayersMask = 0;
     private const float MinMoveSqrMagnitude = 0.01f;
     private const float MaxWalkableSlopeAngle = 50f;
     private const float UpperProbeRadiusFactor = 0.85f;
@@ -13,14 +12,16 @@ public class StepClimber : MonoBehaviour, IStepClimber
     private const float LandingRayExtraDistance = 0.1f;
     private const float MinStepHeight = 0.02f;
     private const float StepHeightTolerance = 0.02f;
-    private const float GroundCheckExtraDistance = 0.2f;
 
     [SerializeField] [Min(0f)] private float _maxStepHeight = 0.35f;
     [SerializeField] [Min(0.05f)] private float _stepCheckDistance = 0.4f;
     [SerializeField] [Min(0.05f)] private float _probeRadius = 0.2f;
     [SerializeField] [Min(0f)] private float _skinWidth = 0.08f;
-    [SerializeField] private LayerMask _collisionMask = AllLayersMask;
+    private GroundChecker _groundChecker;
     private readonly RaycastHit[] _hits = new RaycastHit[HitBufferSize];
+
+    public void Construct(GroundChecker groundChecker) =>
+        _groundChecker = groundChecker;
 
     public bool TryClimb(Vector3 planarVelocity, out float climbHeight)
     {
@@ -29,9 +30,7 @@ public class StepClimber : MonoBehaviour, IStepClimber
         if (TryGetMovementDirection(planarVelocity, out Vector3 direction) == false)
             return false;
 
-        EnsureCollisionMask();
-
-        if (IsGrounded() == false)
+        if (_groundChecker == null || _groundChecker.IsGrounded == false)
             return false;
 
         if (TryFindStepEdge(direction, out RaycastHit stepHit) == false)
@@ -48,27 +47,19 @@ public class StepClimber : MonoBehaviour, IStepClimber
 
     private bool TryGetMovementDirection(Vector3 planarVelocity, out Vector3 direction)
     {
-        direction = new Vector3(planarVelocity.x, 0f, planarVelocity.z);
+        direction = planarVelocity.normalized;
 
         if (direction.sqrMagnitude < MinMoveSqrMagnitude)
             return false;
 
-        direction.Normalize();
-
         return true;
-    }
-
-    private void EnsureCollisionMask()
-    {
-        if (_collisionMask == NoLayersMask)
-            _collisionMask = AllLayersMask;
     }
 
     private bool TryFindStepEdge(Vector3 direction, out RaycastHit stepHit)
     {
         Vector3 origin = transform.position + Vector3.up * (_probeRadius + _skinWidth);
 
-        if (SphereCastIgnoringSelf(origin, _probeRadius, direction, _stepCheckDistance, out stepHit) == false)
+        if (SphereCastNearest(origin, _probeRadius, direction, _stepCheckDistance, out stepHit) == false)
             return false;
 
         if (Vector3.Angle(stepHit.normal, Vector3.up) < MaxWalkableSlopeAngle)
@@ -82,7 +73,7 @@ public class StepClimber : MonoBehaviour, IStepClimber
         float upperRadius = _probeRadius * UpperProbeRadiusFactor;
         Vector3 upperOrigin = transform.position + Vector3.up * (_maxStepHeight + upperRadius + _skinWidth);
 
-        if (SphereCastIgnoringSelf(upperOrigin, upperRadius, direction, _stepCheckDistance, out RaycastHit highHit) == false)
+        if (SphereCastNearest(upperOrigin, upperRadius, direction, _stepCheckDistance, out RaycastHit highHit) == false)
             return false;
 
         return highHit.distance <= stepHit.distance + HitDistanceTolerance;
@@ -94,7 +85,7 @@ public class StepClimber : MonoBehaviour, IStepClimber
             + direction * (stepHit.distance + _probeRadius + LandingAdvanceMargin)
             + Vector3.up * (_maxStepHeight + _skinWidth);
 
-        if (RaycastIgnoringSelf(landingOrigin, Vector3.down, _maxStepHeight + _skinWidth + LandingRayExtraDistance, out groundHit) == false)
+        if (RaycastNearest(landingOrigin, Vector3.down, _maxStepHeight + _skinWidth + LandingRayExtraDistance, out groundHit) == false)
             return false;
 
         if (Vector3.Angle(groundHit.normal, Vector3.up) > MaxWalkableSlopeAngle)
@@ -116,14 +107,7 @@ public class StepClimber : MonoBehaviour, IStepClimber
         return true;
     }
 
-    private bool IsGrounded()
-    {
-        Vector3 origin = transform.position + Vector3.up * (_probeRadius + _skinWidth);
-
-        return SphereCastIgnoringSelf(origin, _probeRadius, Vector3.down, _probeRadius + GroundCheckExtraDistance, out _);
-    }
-
-    private bool SphereCastIgnoringSelf(Vector3 origin, float radius, Vector3 direction, float distance, out RaycastHit hit)
+    private bool SphereCastNearest(Vector3 origin, float radius, Vector3 direction, float distance, out RaycastHit hit)
     {
         int count = Physics.SphereCastNonAlloc(
             origin,
@@ -131,26 +115,26 @@ public class StepClimber : MonoBehaviour, IStepClimber
             direction,
             _hits,
             distance,
-            _collisionMask,
+            _groundChecker.GroundMask,
             QueryTriggerInteraction.Ignore);
 
-        return SelectNearestWorldHit(count, out hit);
+        return SelectNearestHit(count, out hit);
     }
 
-    private bool RaycastIgnoringSelf(Vector3 origin, Vector3 direction, float distance, out RaycastHit hit)
+    private bool RaycastNearest(Vector3 origin, Vector3 direction, float distance, out RaycastHit hit)
     {
         int count = Physics.RaycastNonAlloc(
             origin,
             direction,
             _hits,
             distance,
-            _collisionMask,
+            _groundChecker.GroundMask,
             QueryTriggerInteraction.Ignore);
 
-        return SelectNearestWorldHit(count, out hit);
+        return SelectNearestHit(count, out hit);
     }
 
-    private bool SelectNearestWorldHit(int count, out RaycastHit hit)
+    private bool SelectNearestHit(int count, out RaycastHit hit)
     {
         hit = default;
         float bestDistance = float.MaxValue;
@@ -161,14 +145,6 @@ public class StepClimber : MonoBehaviour, IStepClimber
             RaycastHit candidate = _hits[i];
 
             if (candidate.collider == null)
-                continue;
-
-            Transform root = candidate.collider.transform.root;
-
-            if (root == transform.root)
-                continue;
-
-            if (candidate.collider.GetComponentInParent<CharacterLocomotion>() != null)
                 continue;
 
             if (candidate.distance < bestDistance)

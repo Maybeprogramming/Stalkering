@@ -10,12 +10,14 @@ public class Bootstrap : MonoBehaviour
     [SerializeField] private PursuitMoveInput _botPursuit;
     [SerializeField] private RigidbodyMotor _botMotor;
     [SerializeField] private StepClimber _botStepClimber;
+    [SerializeField] private GroundChecker _botGroundChecker;
 
     private void Awake()
     {
         _playerLocomotion.Construct(_playerMoveInput, _playerMotor);
         _botLocomotion.Construct(_botPursuit, _botMotor);
         _botMotor.Construct(_botStepClimber);
+        _botStepClimber.Construct(_botGroundChecker);
         _botPursuit.Construct(_player.transform);
     }
 }

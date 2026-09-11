@@ -4,9 +4,6 @@ public class PlayerMoveInput : MonoBehaviour, IMoveInput
 {
     private global::InputSystem _inputs;
 
-    public Vector2 MoveDirection =>
-        _inputs != null ? _inputs.Player.Move.ReadValue<Vector2>() : Vector2.zero;
-
     private void Awake() =>
         _inputs = new global::InputSystem();
 
@@ -21,4 +18,7 @@ public class PlayerMoveInput : MonoBehaviour, IMoveInput
         _inputs?.Dispose();
         _inputs = null;
     }
+
+    public Vector2 GetMoveDirection() =>
+        _inputs != null ? _inputs.Player.Move.ReadValue<Vector2>() : Vector2.zero;
 }
